@@ -222,7 +222,7 @@
         }
         public void CreateAssemblyDefinationFile()
         {
-            string runtimeFolderPath = AssetDatabase.GetAssetPath(folder) + "/Runtime";
+            string runtimeFolderPath = AssetDatabase.GetAssetPath(folder) ;
 
             //Assign name
             defination.name = package.name;

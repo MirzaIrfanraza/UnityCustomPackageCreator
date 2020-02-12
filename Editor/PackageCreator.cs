@@ -5,7 +5,7 @@
     using UnityEngine;
     using System.IO;
 
-
+    [InitializeOnLoad]
     public class PackageCreator : EditorWindow
     {
         #region PRIVATE_VARS

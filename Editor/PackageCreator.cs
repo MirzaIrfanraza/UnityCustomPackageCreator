@@ -220,7 +220,8 @@
 
             //Assign name
             defination.name = package.name;
-            
+            defination.autoReferenced = true;
+
             //Create File
             JsonCreator.SaveAssembly(defination,runtimeFolderPath);
             Debug.Log("CreateAssemblyDefinationFile");

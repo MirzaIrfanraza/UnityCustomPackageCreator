@@ -12,6 +12,7 @@
         PackageCreatorEditorTool.Package package;
         PackageCreatorEditorTool.AssemblyDefination defination;
         DefaultAsset folder;
+        DefaultAsset tempFolder;
         bool isPackageCreated;
         #endregion
 
@@ -24,7 +25,6 @@
         }
         private void OnEnable()
         {
-            package.Reset();
             isPackageCreated = false;
         }
         void OnGUI()
@@ -55,7 +55,13 @@
         public void DrawFolderSelector()
         {
             EditorUIUtility.DrawLabel(PackageEditorConstants.selectFolder, GUILayout.Width(PackageEditorConstants.i125));
-            folder = (DefaultAsset)EditorUIUtility.DrawObjectField(folder, typeof(DefaultAsset));
+            tempFolder = (DefaultAsset)EditorUIUtility.DrawObjectField(tempFolder, typeof(DefaultAsset));
+            if(tempFolder!=folder)
+            {
+                Debug.Log("Called : DrawFolderSelector");
+                folder = tempFolder;
+                package = JsonCreator.LoadJson(AssetDatabase.GetAssetPath(folder));
+            }
         }
         #endregion
 

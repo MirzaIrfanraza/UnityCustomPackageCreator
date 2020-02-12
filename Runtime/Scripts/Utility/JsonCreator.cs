@@ -44,18 +44,24 @@ public static class JsonCreator
             File.Delete(file);
         }
     }
-    public static void LoadJson(PackageCreatorEditorTool.Package jsonContent, string jsonPath)
+    public static PackageCreatorEditorTool.Package LoadJson( string jsonPath)
     {
         string path = jsonPath + "/package.json";
-
+        PackageCreatorEditorTool.Package tempPackage=new PackageCreatorEditorTool.Package();
         if (File.Exists(path))
         {
             string jsonString = File.ReadAllText(path);
-            JsonUtility.FromJsonOverwrite(jsonString, jsonContent);
+            tempPackage=JsonUtility.FromJson<PackageCreatorEditorTool.Package>(jsonString);
+            Debug.Log(tempPackage.name);
+            Debug.Log(tempPackage.displayName);
+            Debug.Log(jsonString);
+
+
         }
         else
         {
             Debug.Log("No file.");
         }
+        return tempPackage;
     }
 }

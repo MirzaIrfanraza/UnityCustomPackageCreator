@@ -18,7 +18,6 @@ public static class JsonCreator
         {
             string jsonString = JsonUtility.ToJson(jsonContent);
             File.WriteAllText(path, jsonString);
-
         }
     }
     public static void SaveAssembly(PackageCreatorEditorTool.AssemblyDefination assemblyDefination, string jsonPath)
@@ -55,8 +54,6 @@ public static class JsonCreator
             Debug.Log(tempPackage.name);
             Debug.Log(tempPackage.displayName);
             Debug.Log(jsonString);
-
-
         }
         else
         {

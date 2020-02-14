@@ -1,1 +1,25 @@
-{"name":"com.irfanraza.packagecreatortool","displayName":"Custom Package Creator Tool","description":"This package allows you to create custom packages for package manager in unity. It's been developed to simplify the process to create custom unity packages. \nFeatures \n-Automatically create package.json file.\n-Automatically create assembly definitionfile.\n- Automatically create folder structure suitable for any custom packages.","keywords":["Unity","Unity3D","Packagemanager","Custom package maker","Custom package creator ","Custom package"],"version":"1.0.1","unity":"2018.3","author":{"name":"Irfanraza","email":"mirzairfanraza@gmail.com","url":""},"repository":{"type":"local","url":"https://github.com/MirzaIrfanraza/UnityCustomPackageCreator.git"}}
+{
+    "name": "com.irfanraza.packagecreatortool",
+    "displayName": "Custom Package Creator Tool",
+    "description": "This package allows you to create custom packages for package manager in unity. It's been developed to simplify the process to create custom unity packages. \nFeatures \n-Automatically create package.json file.\n-Automatically create assembly definitionfile.\n-Automatically create folder structure suitable for any custom packages.",
+    "keywords": [
+        "Unity",
+        "Unity3D",
+        "Packagemanager",
+        "Custom package maker",
+        "Custom package creator ",
+        "Custom package"
+    ],
+    "version": "1.0.1",
+    "unity": "2018.3",
+    "author": {
+        "name": "Irfanraza",
+        "email": "mirzairfanraza@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MirzaIrfanraza/UnityCustomPackageCreator.git"
+    },
+    "dependencies": {
+    }
+}

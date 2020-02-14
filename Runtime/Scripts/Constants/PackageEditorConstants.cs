@@ -16,7 +16,7 @@ public static class PackageEditorConstants
     public static readonly string url = "Url : ";
     public static readonly string selectFolder = "Select Folder : ";
     public static readonly string create = "Create";
-
+    public static readonly string dependecies = "Dependencies : ";
     public static readonly string[] repoType = new string[] { "local","git"};
 
 

@@ -4,6 +4,25 @@
     using UnityEditor;
     using UnityEngine;
     using System.IO;
+    using CleverTap.Utilities;
+    [System.Serializable]
+    public class DependencyData
+    {
+        public string key;
+        public string value;
+        public DependencyData(string key,string value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+        public DependencyData()
+        {
+            key = string.Empty;
+            value = string.Empty;
+        }
+    }
+
+
 
     [InitializeOnLoad]
     public class PackageCreator : EditorWindow
@@ -14,6 +33,8 @@
         DefaultAsset folder;
         DefaultAsset tempFolder;
         bool isPackageCreated;
+        public Dictionary<string, string> dependencies;
+        public List<DependencyData> tempDependencies;
         #endregion
 
         #region Unity_Callbacks
@@ -26,6 +47,8 @@
         private void OnEnable()
         {
             isPackageCreated = false;
+            dependencies = new Dictionary<string, string>();
+            tempDependencies = new List<DependencyData>();
         }
         void OnGUI()
         {
@@ -39,8 +62,9 @@
                 EditorUIUtility.DrawVerticalLayout(() => DrawPackageDetails());
                 EditorUIUtility.DrawVerticalLayout(() => DrawAutherDetails());
                 EditorUIUtility.DrawVerticalLayout(() => DrawRepositoryDetails());
+                EditorUIUtility.DrawVerticalLayout(() => DrawDependencyDetails());
                 EditorUIUtility.DrawButton(PackageEditorConstants.create, () => OnCreateButtonClick());
-                if(isPackageCreated)
+                if (isPackageCreated)
                 {
                     EditorGUILayout.BeginVertical(GUI.skin.GetStyle("helpBox"));
                     EditorUIUtility.DrawLabel("Package Created Successfully");
@@ -56,11 +80,27 @@
         {
             EditorUIUtility.DrawLabel(PackageEditorConstants.selectFolder, GUILayout.Width(PackageEditorConstants.i125));
             tempFolder = (DefaultAsset)EditorUIUtility.DrawObjectField(tempFolder, typeof(DefaultAsset));
-            if(tempFolder!=folder)
+            if (tempFolder != folder)
             {
                 Debug.Log("Called : DrawFolderSelector");
                 folder = tempFolder;
                 package = JsonCreator.LoadJson(AssetDatabase.GetAssetPath(folder));
+
+                FillDependencies();
+            }
+        }
+        public void FillDependencies()
+        {
+            string jsonString = File.ReadAllText(AssetDatabase.GetAssetPath(folder) + "/package.json");
+            JSONNode packageClass = JSONClass.Parse(jsonString);
+            JSONNode dependencyNode = packageClass["dependencies"];
+
+            dependencies = (Dictionary<string, string>)MiniJSON.Json.Deserialize(dependencyNode.ToString());
+            tempDependencies.Clear();
+
+            foreach(string key in dependencies.Keys)
+            {
+                tempDependencies.Add(new DependencyData(key, (string)dependencies[key]));
             }
         }
         #endregion
@@ -197,6 +237,46 @@
         }
         #endregion
 
+        #region DependencyDrawer
+
+        public void DrawDependencyDetails()
+        {
+            EditorGUILayout.BeginVertical(GUI.skin.GetStyle("helpBox"));
+            GUILayout.Space(10);
+            EditorUIUtility.DrawLabel("Dependency Details ", 20, TextAnchor.MiddleCenter, null);
+            GUILayout.Space(10);
+            EditorUIUtility.DrawHorizontalLayout(() => DrawDependeciesContainer());
+
+            EditorGUILayout.EndVertical();
+        }
+        public void DrawDependeciesContainer()
+        {
+            EditorUIUtility.DrawLabel(PackageEditorConstants.dependecies, GUILayout.Width(PackageEditorConstants.i125));
+            EditorGUILayout.BeginVertical();
+            DrawDependencies();
+            EditorUIUtility.DrawButton(PackageEditorConstants.add, () => OnDependencyAddButtonClick());
+            EditorGUILayout.EndVertical();
+        }
+        public void DrawDependencies()
+        {
+            for (int indexOfKeyword = tempDependencies.Count - 1; indexOfKeyword >= 0; indexOfKeyword--)
+            {
+                EditorGUILayout.BeginHorizontal();
+                tempDependencies[indexOfKeyword].key = EditorUIUtility.DrawTextField(tempDependencies[indexOfKeyword].key);
+                tempDependencies[indexOfKeyword].value =EditorUIUtility.DrawTextField(tempDependencies[indexOfKeyword].value);
+                EditorUIUtility.DrawButton(PackageEditorConstants.remove, () => OnDependencyRemoveButtonClick(indexOfKeyword));
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+        public void OnDependencyRemoveButtonClick(int indexOfDependency)
+        {
+            tempDependencies.RemoveAt(indexOfDependency);
+        }
+        public void OnDependencyAddButtonClick()
+        {
+            tempDependencies.Insert(0,new DependencyData());
+        }
+        #endregion
         #region PackageCreator
 
         public void OnCreateButtonClick()
@@ -218,25 +298,49 @@
             {
                 Directory.CreateDirectory(runtimeFolderPath);
             }
-           
+
         }
         public void CreateAssemblyDefinationFile()
         {
-            string runtimeFolderPath = AssetDatabase.GetAssetPath(folder) ;
+            string runtimeFolderPath = AssetDatabase.GetAssetPath(folder);
 
             //Assign name
             defination.name = package.name;
             defination.autoReferenced = true;
 
             //Create File
-            JsonCreator.SaveAssembly(defination,runtimeFolderPath);
+            JsonCreator.SaveAssembly(defination, runtimeFolderPath);
             Debug.Log("CreateAssemblyDefinationFile");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
         public void CreateJasonFile()
         {
-            JsonCreator.SaveJson(package, AssetDatabase.GetAssetPath(folder));
+            //Create Json Object
+            string jsonString = JsonUtility.ToJson(package);
+            JSONNode packageClass = JSONClass.Parse(jsonString);
+
+            Debug.Log(packageClass.ToString());
+
+
+
+
+            //Create Dependency object
+            dependencies = new Dictionary<string, string>();
+            foreach(DependencyData data in tempDependencies)
+            {
+                dependencies.Add(data.key,data.value);
+            }
+
+            string dependenciesString = MiniJSON.Json.Serialize(dependencies);
+            JSONNode dependencyObject = JSONClass.Parse(dependenciesString);
+
+            //Add Dependecy object into json object
+            packageClass.Add("dependencies", dependencyObject);
+
+            //Create Json file
+            File.WriteAllText(AssetDatabase.GetAssetPath(folder) + "/package.json", packageClass.ToString());
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
